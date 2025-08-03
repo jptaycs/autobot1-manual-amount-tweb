@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "HftNUjVrlQw=",
+  "dgSpecHash": "0tUTCy0ZHU4=",
   "success": true,
-  "projectFilePath": "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount\\TelegramPocketBotWin.csproj",
+  "projectFilePath": "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount-browser\\TelegramPocketBotWin.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\jp\\.nuget\\packages\\microsoft.extensions.configuration\\6.0.0\\microsoft.extensions.configuration.6.0.0.nupkg.sha512",
     "C:\\Users\\jp\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\6.0.0\\microsoft.extensions.configuration.abstractions.6.0.0.nupkg.sha512",

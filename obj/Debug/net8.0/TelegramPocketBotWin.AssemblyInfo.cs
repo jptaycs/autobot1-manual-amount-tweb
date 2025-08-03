@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TelegramPocketBotWin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fc20018672e4f64dc6846db030b4eacd9776856b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c0004ead510fc4c82942e20716f922261b01e23d")]
 [assembly: System.Reflection.AssemblyProductAttribute("TelegramPocketBotWin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TelegramPocketBotWin")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount\\TelegramPocketBotWin.csproj": {}
+    "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount-browser\\TelegramPocketBotWin.csproj": {}
   },
   "projects": {
-    "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount\\TelegramPocketBotWin.csproj": {
+    "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount-browser\\TelegramPocketBotWin.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount\\TelegramPocketBotWin.csproj",
+        "projectUniqueName": "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount-browser\\TelegramPocketBotWin.csproj",
         "projectName": "TelegramPocketBotWin",
-        "projectPath": "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount\\TelegramPocketBotWin.csproj",
+        "projectPath": "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount-browser\\TelegramPocketBotWin.csproj",
         "packagesPath": "C:\\Users\\jp\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount\\obj\\",
+        "outputPath": "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount-browser\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
