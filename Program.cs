@@ -3,21 +3,11 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
-using Telegram.Bot.Polling;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 using SeleniumExtras.WaitHelpers;
 
 class Program
 {
     static IWebDriver? driver; // Global driver instance
-
-    static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
-    {
-        Console.WriteLine("❌ Error: " + exception.Message); // Catch and log errors during polling and notify when there is an error
-        return Task.CompletedTask;
-    }
-
     public static void PressEscapeKey(IWebDriver driver) // Method to press the Escape key 
     {
         new OpenQA.Selenium.Interactions.Actions(driver)
@@ -25,22 +15,11 @@ class Program
             .Perform();
     }
 
-    static async Task Main() // Open the website and notify when ready
+    static async Task Main()
     {
-        var botClient = new TelegramBotClient("7309863025:AAFlHKRAQ7wZcagBjvP5NulRT5w54PRf0Vo"); // Replace with your token
-        var cts = new CancellationTokenSource();
-        var receiverOptions = new ReceiverOptions { AllowedUpdates = Array.Empty<UpdateType>() };
-
-        botClient.StartReceiving(
-            updateHandler: HandleUpdateAsync,
-            pollingErrorHandler: HandlePollingErrorAsync,
-            receiverOptions: receiverOptions,
-            cancellationToken: cts.Token
-        );
-
-        var me = await botClient.GetMeAsync();
         Console.WriteLine("Pocket Option Bot is up and running.");
 
+        // Launch Pocket Option
         ChromeOptions options = new ChromeOptions();
         driver = new ChromeDriver(options);
         driver.Navigate().GoToUrl("https://pocketoption.com/en/login/");
@@ -59,97 +38,128 @@ class Program
             return;
         }
 
-        Console.WriteLine("Ready to receive trades from Telegram.");
-        Console.ReadLine(); // Keep app alive
+        // Open Telegram Web in a second browser
+        var telegramDriver = new ChromeDriver(options);
+        telegramDriver.Navigate().GoToUrl("https://web.telegram.org/k/#@pocketoptionassistant_bot");
+        Console.WriteLine("Opened Telegram Web. Waiting for page to load...");
+
+        WebDriverWait telegramWait = new WebDriverWait(telegramDriver, TimeSpan.FromMinutes(5));
+        telegramWait.Until(driver => driver.FindElements(By.CssSelector("div.bubble")).Count > 0);
+        Console.WriteLine("✅ Telegram Web is ready.");
+
+        string? lastMessageId = null;
+
+        while (true)
+        {
+            var (messageText, messageId) = ReadLastTelegramMessage(telegramDriver);
+
+            if (!string.IsNullOrEmpty(messageText) && !string.IsNullOrEmpty(messageId))
+            {
+                if (messageId != lastMessageId)
+                {
+                    Console.WriteLine("✅ New Message:");
+                    Console.WriteLine(messageText);
+
+                    lastMessageId = messageId;
+
+                    HandleTradeMessage(messageText);
+                }
+                else
+                {
+                    Console.WriteLine("⏳ Same message ID. Skipping...");
+                }
+            }
+
+            await Task.Delay(3000); // Poll every 3 seconds
+        }
+
+        Console.ReadLine(); // Keep app running
     }
 
-    static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    public static (string messageText, string messageId) ReadLastTelegramMessage(IWebDriver telegramDriver)
     {
-        if (update.Message is not { } message || message.Text is not { } text)
-            return;
+        try
+        {
+            WebDriverWait wait = new WebDriverWait(telegramDriver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => driver.FindElements(By.CssSelector("div.bubble")).Count > 0);
 
+            var messageBubbles = telegramDriver.FindElements(By.CssSelector("div.bubble"));
+            var lastBubble = messageBubbles.Last();
+
+            // Get message content
+            var messageDiv = lastBubble.FindElement(By.CssSelector("div.message.spoilers-container"));
+            string messageText = messageDiv.Text.Trim();
+
+            // ✅ Get unique message ID (data-mid)
+            string messageId = lastBubble.GetAttribute("data-mid") ?? "";
+
+            return (messageText, messageId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ Failed to read last Telegram message: " + ex.Message);
+            return (null, null);
+        }
+    }
+
+    static bool HandleTradeMessage(string text)
+    {
         Console.WriteLine($"📩 Received message: {text}");
+
+        // ✅ Only process if message contains "Trade Signal!"
+        if (!text.Contains("Trade Signal!", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("⚠️ Message ignored: does not contain a valid trade signal.");
+            return false;
+        }
 
         string? pair = null;
         string? action = null;
         string? time = null;
         bool isOTC = false;
-        var lower = text.ToLower();
 
-        if (text.Contains("Trade Signal!", StringComparison.OrdinalIgnoreCase))
+        var pairMatch = Regex.Match(text, @"Currency Pair:\s*([A-Z]{3}/[A-Z]{3})( OTC)?", RegexOptions.IgnoreCase);
+        if (pairMatch.Success)
         {
-            var pairMatch = Regex.Match(text, @"Currency Pair:\s*([A-Z]{3}/[A-Z]{3})( OTC)?", RegexOptions.IgnoreCase);
-            if (pairMatch.Success)
-            {
-                pair = pairMatch.Groups[1].Value.ToUpper();
-                isOTC = !string.IsNullOrEmpty(pairMatch.Groups[2].Value);
-            }
-
-            var actionMatch = Regex.Match(text, @"Trade Signal:\s*(OPEN\s+BUY|OPEN\s+SELL)", RegexOptions.IgnoreCase);
-            if (actionMatch.Success)
-            {
-                action = actionMatch.Groups[1].Value.ToUpper().Replace("OPEN ", "");
-            }
-
-            var timeMatch = Regex.Match(text, @"Timeframe:\s*(\d+)\s*minute", RegexOptions.IgnoreCase);
-            if (timeMatch.Success)
-            {
-                var minutes = timeMatch.Groups[1].Value;
-                time = $"{minutes}m";
-            }
-        }
-        else
-        {
-            isOTC = lower.Contains("otc");
-            if (lower.Contains("otc"))
-            {
-                isOTC = true;
-                lower = lower.Replace("otc", "").Trim();
-            }
-
-            var pairMatch = Regex.Match(lower, @"([a-z]{3})/([a-z]{3})");
-            if (pairMatch.Success)
-                pair = pairMatch.Value.ToUpper();
-
-            var timeParts = Regex.Matches(lower, @"(\d+)\s*[hms]");
-            if (timeParts.Count > 0)
-                time = string.Join(" ", timeParts.Select(m => m.Value));
-
-            if (lower.Contains("open buy") || lower.Contains("buy")) action = "BUY";
-            else if (lower.Contains("open sell") || lower.Contains("sell")) action = "SELL";
+            pair = pairMatch.Groups[1].Value.ToUpper();
+            isOTC = !string.IsNullOrEmpty(pairMatch.Groups[2].Value);
         }
 
-        string response;
+        var actionMatch = Regex.Match(text, @"Trade Signal:\s*(OPEN\s+BUY|OPEN\s+SELL)", RegexOptions.IgnoreCase);
+        if (actionMatch.Success)
+        {
+            action = actionMatch.Groups[1].Value.ToUpper().Replace("OPEN ", "");
+        }
+
+        var timeMatch = Regex.Match(text, @"Timeframe:\s*(\d+)\s*minute", RegexOptions.IgnoreCase);
+        if (timeMatch.Success)
+        {
+            var minutes = timeMatch.Groups[1].Value;
+            time = $"{minutes}m";
+        }
+
         if (pair != null && action != null && time != null)
         {
-            response = $"🪙 Pair: {pair}{(isOTC ? " OTC" : "")}\n⏱️ Time: {time}\n📈 Action: {action}";
+            Console.WriteLine($"🪙 Pair: {pair}{(isOTC ? " OTC" : "")}\n⏱️ Time: {time}\n📈 Action: {action}");
 
             if (SelectCurrencyPair(pair, isOTC))
             {
                 SetTradeTime(time);
                 ExecuteTrade(action);
+                return true; // ✅ Trade executed
             }
             else
             {
-                await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id,
-                    text: $"❌ Trade cancelled: {pair}{(isOTC ? " OTC" : "")} is unavailable (N/A).",
-                    cancellationToken: cancellationToken
-                );
+                Console.WriteLine($"❌ Trade cancelled: {pair}{(isOTC ? " OTC" : "")} is unavailable (N/A).");
+                return false;
             }
         }
         else
         {
-            response = $"⚠️ Wrong trade info.\n🪙 Pair: {pair}\n📈 Action: {action}\n⏱️ Time: {time}";
+            Console.WriteLine($"⚠️ Invalid trade format.\n🪙 Pair: {pair}\n📈 Action: {action}\n⏱️ Time: {time}");
         }
-
-        await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id,
-            text: response,
-            cancellationToken: cancellationToken
-        );
+        return false;
     }
-
 
     static bool SelectCurrencyPair(string pair, bool isOTC) // Selects the currency pair and check if it's available & OTC
     {
@@ -211,7 +221,7 @@ class Program
     static void SetTradeTime(string time)
     {
         try
-        { 
+        {
             // Step 1: Click to open the popup
             var timeDisplay = driver.FindElement(By.CssSelector(".control__value"));
             timeDisplay.Click();
@@ -267,8 +277,8 @@ class Program
     static void ExecuteTrade(string action)
     {
         try
-        { 
-        
+        {
+
             if (action.ToUpper() == "BUY")
             {
                 var buyButton = driver.FindElement(By.CssSelector("a.btn-call")); // Look for the Buy button
@@ -277,7 +287,7 @@ class Program
             else if (action.ToUpper() == "SELL")
             {
                 var sellButton = driver.FindElement(By.CssSelector("a.btn-put")); // Look for the Sell button
-            sellButton.Click();
+                sellButton.Click();
             }
             else
             {
