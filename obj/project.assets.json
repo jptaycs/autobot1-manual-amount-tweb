@@ -1736,24 +1736,32 @@
     ]
   },
   "packageFolders": {
-    "/Users/jptaycs/.nuget/packages/": {}
+    "C:\\Users\\jp\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/jptaycs/Documents/GitHub/autobot1-manual-amount/TelegramPocketBotWin.csproj",
+      "projectUniqueName": "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount-tweb\\TelegramPocketBotWin.csproj",
       "projectName": "TelegramPocketBotWin",
-      "projectPath": "/Users/jptaycs/Documents/GitHub/autobot1-manual-amount/TelegramPocketBotWin.csproj",
-      "packagesPath": "/Users/jptaycs/.nuget/packages/",
-      "outputPath": "/Users/jptaycs/Documents/GitHub/autobot1-manual-amount/obj/",
+      "projectPath": "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount-tweb\\TelegramPocketBotWin.csproj",
+      "packagesPath": "C:\\Users\\jp\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\jp\\Desktop\\projects\\Autobot 1\\Manual amount\\autobot1-manual-amount-tweb\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/Users/jptaycs/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\jp\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -1819,7 +1827,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.303/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
